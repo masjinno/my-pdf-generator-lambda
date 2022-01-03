@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Amazon.Lambda.Core;
+using MyPdfGeneratorLambda.Dto;
+using MyPdfGeneratorLambda.Model;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -12,16 +14,28 @@ namespace MyPdfGeneratorLambda
 {
     public class Function
     {
-        
         /// <summary>
-        /// A simple function that takes a string and does a ToUpper
+        /// CSVファイルからPDFファイルを生成する
         /// </summary>
         /// <param name="input"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public string FunctionHandler(string input, ILambdaContext context)
+        public GeneratedPdf GeneratePdfFromCsv(PdfGenerationInput input, ILambdaContext context)
         {
-            return input?.ToUpper();
+            context.Logger.LogLine($"Arg : [{input}]");
+            PdfGenerator generator = new PdfGenerator();
+            return generator.GeneratePdfFromCsv(input);
+        }
+
+        /// <summary>
+        /// PDFファイル生成で指定可能なパラメーターを取得する
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public Properties GetProperties(object input, ILambdaContext context)
+        {
+            return Properties.Init();
         }
     }
 }
