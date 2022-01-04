@@ -36,17 +36,6 @@ namespace MyPdfGeneratorLambda.Model
         }
 
         /// <summary>
-        /// CSVのヘッダ一覧を取得する
-        /// </summary>
-        /// <returns></returns>
-        public List<string> GetHeaderItems()
-        {
-            if (this.headerItems.Count == 0) throw new NotSupportedException("Call LoadCsv method before calling GetHeaderList method.");
-
-            return this.headerItems;
-        }
-
-        /// <summary>
         /// CSVの内容部分(ヘッダは除く)を取得する
         /// </summary>
         /// <returns></returns>

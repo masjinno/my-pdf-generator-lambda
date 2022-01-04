@@ -6,7 +6,7 @@ namespace MyPdfGeneratorLambda.Dto
 {
     public class CsvContentSetting
     {
-        public double FontSize { get; set; }
+        public float FontSize { get; set; } = 12F;
         public string FontFamily { get; set; }
     }
 }

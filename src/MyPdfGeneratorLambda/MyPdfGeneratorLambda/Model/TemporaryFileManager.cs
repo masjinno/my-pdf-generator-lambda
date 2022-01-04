@@ -59,7 +59,7 @@ namespace MyPdfGeneratorLambda.Model
         public bool DeleteFile(string path)
         {
             bool isDeleted = true;
-            if (!File.Exists(path))
+            if (File.Exists(path))
             {
                 try
                 {

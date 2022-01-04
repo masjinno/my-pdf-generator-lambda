@@ -11,7 +11,7 @@ namespace MyPdfGeneratorLambda.Model
     public class PdfLogic
     {
         private Rectangle dstPageSize;
-        private Direction dstMargin;
+        private Margin dstMargin;
         private bool isDstPageRotate;
         private float dstHeaderFontSize;
         private string dstHeaderFontName;
@@ -81,7 +81,7 @@ namespace MyPdfGeneratorLambda.Model
             this.dstPageSize = pageSize;
         }
 
-        public void SetDstMargin(Direction margin)
+        public void SetDstMargin(Margin margin)
         {
             this.dstMargin = margin;
         }

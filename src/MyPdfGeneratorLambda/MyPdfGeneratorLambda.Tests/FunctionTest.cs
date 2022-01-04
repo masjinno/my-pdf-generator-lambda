@@ -21,9 +21,30 @@ namespace MyPdfGeneratorLambda.Tests
             var function = new Function();
             var context = new TestLambdaContext();
             var input = new PdfGenerationInput();
+            input.CsvData = "header1,header2,header3\ncontent1-1,content1-2,content1-3\ncontent2-1,content2-2,content2-3";
+            input.PageSetting = new PageSetting()
+            {
+                Size = "A4",
+                Orientation = "縦向き",
+                Margin = new Margin() { Top = 20F, Left = 20F, Right = 20F, Bottom = 20F}
+            };
+            input.HeaderSetting = new CsvHeaderSetting()
+            {
+                FontFamily = "メイリオ",
+                FontSize = 14F,
+                MarkupStart = "■",
+                MarkupEnd = "",
+                TargetItems = new List<string>() { "conten1", "content3" }
+            };
+            input.ContentSetting = new CsvContentSetting()
+            {
+                FontSize = 11F,
+                FontFamily = "メイリオ"
+            };
             var generatedPdf = function.GeneratePdfFromCsv(input, context);
 
-            Assert.Equal("xxx", generatedPdf.PdfFileData);
+            Assert.False(string.IsNullOrEmpty(generatedPdf.PdfFileData));
+            // Assert.Equal("xxx", generatedPdf.PdfFileData);
         }
 
         [Fact]
