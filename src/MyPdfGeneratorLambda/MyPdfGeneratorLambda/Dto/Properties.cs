@@ -35,7 +35,6 @@ namespace MyPdfGeneratorLambda.Dto
         private static List<string> GetFontFamilies()
         {
             List<string> ret = new List<string>();
-            FontFactory.RegisterDirectory("C:\\WINDOWS\\Fonts");
             foreach (string fontname in FontFactory.RegisteredFonts)
             {
                 ret.Add(fontname);

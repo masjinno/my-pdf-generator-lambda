@@ -22,12 +22,17 @@ namespace MyPdfGeneratorLambda.Model
 
         public PdfLogic()
         {
-            this.Init();
+            PdfLogic.Init();
         }
 
-        public void Init()
+        public static void Init()
         {
             FontFactory.RegisterDirectories();
+
+            //Windows環境向け
+            FontFactory.RegisterDirectory(@"C:\WINDOWS\Fonts");
+            //Lambda環境向け
+            FontFactory.RegisterDirectory("/opt/.fonts/");
         }
 
         /// <summary>

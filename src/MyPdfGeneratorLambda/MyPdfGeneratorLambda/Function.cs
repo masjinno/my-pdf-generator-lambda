@@ -14,6 +14,11 @@ namespace MyPdfGeneratorLambda
 {
     public class Function
     {
+        public Function()
+        {
+            PdfLogic.Init();
+        }
+
         /// <summary>
         /// CSVファイルからPDFファイルを生成する
         /// </summary>

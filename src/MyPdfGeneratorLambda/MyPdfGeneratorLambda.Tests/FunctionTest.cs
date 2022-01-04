@@ -9,6 +9,8 @@ using Amazon.Lambda.TestUtilities;
 
 using MyPdfGeneratorLambda;
 using MyPdfGeneratorLambda.Dto;
+using MyPdfGeneratorLambda.Model;
+using System.IO;
 
 namespace MyPdfGeneratorLambda.Tests
 {
@@ -70,6 +72,19 @@ namespace MyPdfGeneratorLambda.Tests
 
             Assert.Equal(expectedPageSizes, props.PageSizes);
             Assert.Equal(expectedOrientations, props.Orientations);
+        }
+
+        //[Fact]
+        public void CreatePdfFromBase64()
+        {
+            string base64 = "{Base64化したPDFファイルの内容}";
+            byte[] bin = System.Convert.FromBase64String(base64);
+            TemporaryFileManager tfm = TemporaryFileManager.GetInstance();
+            string filePath = tfm.GenerateFilePath("pdf");
+            BinaryWriter bw = new BinaryWriter(new FileStream(filePath, FileMode.Create));
+            bw.Write(bin);
+            bw.Close();
+            tfm.DeleteFile(filePath);
         }
     }
 }
