@@ -34,7 +34,7 @@ namespace MyPdfGeneratorLambda.Tests
                 FontSize = 14F,
                 MarkupStart = "Å°",
                 MarkupEnd = "",
-                TargetItems = new List<string>() { "conten1", "content3" }
+                TargetItems = new List<string>() { "header3", "header1" }
             };
             input.ContentSetting = new CsvContentSetting()
             {

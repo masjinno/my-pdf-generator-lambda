@@ -30,50 +30,54 @@ namespace MyPdfGeneratorLambda.Model
             FontFactory.RegisterDirectories();
         }
 
+        /// <summary>
+        /// CSVからPDFに変換する
+        /// </summary>
+        /// <param name="csvHeader">CSVのヘッダ</param>
+        /// <param name="csvContent">CSVの内容</param>
+        /// <param name="pdfFilePath">出力するPDFファイルのパス</param>
         public void ConvertCsvToPdf(List<string> csvHeader, List<List<string>> csvContent, string pdfFilePath)
         {
             Rectangle pageSize = this.dstPageSize;
             if (this.isDstPageRotate) pageSize = pageSize.Rotate();
 
-            using (FileStream fs = new FileStream(pdfFilePath, FileMode.Create))
+            using FileStream fs = new FileStream(pdfFilePath, FileMode.Create);
+            Document doc = new Document(pageSize, this.dstMargin.Left, this.dstMargin.Right, this.dstMargin.Top, this.dstMargin.Bottom);
+
+            PdfWriter pdfWriter = PdfWriter.GetInstance(doc, fs);
+            doc.Open();
+
+            // header paragraph setting
+            Font headerFont = this.GetHeaderFont();
+            List<Paragraph> headers = new List<Paragraph>();
+            foreach (string h in csvHeader)
             {
-                Document doc = new Document(pageSize, this.dstMargin.Left, this.dstMargin.Right, this.dstMargin.Top, this.dstMargin.Bottom);
-
-                PdfWriter pdfWriter = PdfWriter.GetInstance(doc, fs);
-                doc.Open();
-
-                // header paragraph setting
-                Font headerFont = this.GetHeaderFont();
-                List<Paragraph> headers = new List<Paragraph>();
-                foreach (string h in csvHeader)
-                {
-                    StringBuilder sb = new StringBuilder();
-                    sb.Append(this.dstHeaderMarkupStart).Append(h).Append(this.dstHeaderMarkupEnd);
-                    headers.Add(new Paragraph(sb.ToString(), headerFont));
-                }
-
-                // write document
-                Font contentFont = this.GetContentFont();
-                for (int rowIndex = 0; rowIndex < csvContent.Count; rowIndex++)
-                {
-                    string pageStartMessage = new StringBuilder().Append("No.").Append(rowIndex + 1).Append("\r\n\r\n").ToString();
-                    doc.Add(new Paragraph(pageStartMessage, contentFont));
-
-                    for (int columnIndex = 0; columnIndex < headers.Count; columnIndex++)
-                    {
-                        doc.Add(headers[columnIndex]);
-                        StringBuilder contentSB = new StringBuilder();
-                        contentSB.Append(csvContent[rowIndex][columnIndex]).Append("\r\n\r\n");
-                        doc.Add(new Paragraph(contentSB.ToString(), contentFont));
-                    }
-                    doc.NewPage();
-                }
-
-                string docEndMessage = new StringBuilder().Append("以上、").Append(csvContent.Count).Append("データ").ToString();
-                doc.Add(new Paragraph(docEndMessage, contentFont));
-
-                doc.Close();
+                StringBuilder sb = new StringBuilder();
+                sb.Append(this.dstHeaderMarkupStart).Append(h).Append(this.dstHeaderMarkupEnd);
+                headers.Add(new Paragraph(sb.ToString(), headerFont));
             }
+
+            // write document
+            Font contentFont = this.GetContentFont();
+            for (int rowIndex = 0; rowIndex < csvContent.Count; rowIndex++)
+            {
+                string pageStartMessage = new StringBuilder().Append("No.").Append(rowIndex + 1).Append("\r\n\r\n").ToString();
+                doc.Add(new Paragraph(pageStartMessage, contentFont));
+
+                for (int columnIndex = 0; columnIndex < headers.Count; columnIndex++)
+                {
+                    doc.Add(headers[columnIndex]);
+                    StringBuilder contentSB = new StringBuilder();
+                    contentSB.Append(csvContent[rowIndex][columnIndex]).Append("\r\n\r\n");
+                    doc.Add(new Paragraph(contentSB.ToString(), contentFont));
+                }
+                doc.NewPage();
+            }
+
+            string docEndMessage = new StringBuilder().Append("以上、").Append(csvContent.Count).Append("データ").ToString();
+            doc.Add(new Paragraph(docEndMessage, contentFont));
+
+            doc.Close();
         }
 
         public void SetDstPageSize(Rectangle pageSize)

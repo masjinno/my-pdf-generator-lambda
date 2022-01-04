@@ -7,7 +7,5 @@ namespace MyPdfGeneratorLambda.Dto
     public class GeneratedPdf
     {
         public string PdfFileData { get; set; }
-
-        public string Guid { get; set; }
     }
 }

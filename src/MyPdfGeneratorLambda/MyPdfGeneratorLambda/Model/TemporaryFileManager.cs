@@ -84,9 +84,16 @@ namespace MyPdfGeneratorLambda.Model
         /// <returns>ファイルパス</returns>
         public string GenerateFilePath(string ext)
         {
+            string folder = "/tmp/";
+            string folderFullPath = Path.GetFullPath(folder);
+            if (!Directory.Exists(folderFullPath))
+            {
+                Directory.CreateDirectory(folderFullPath);
+            }
+
             StringBuilder sb = new StringBuilder().Append(System.Guid.NewGuid().ToString());
             string fileName = string.IsNullOrEmpty(ext) ? sb.ToString() : sb.Append(".").Append(ext).ToString();
-            string filePath = Path.GetFullPath(fileName);
+            string filePath = Path.GetFullPath(new StringBuilder(folder).Append(fileName).ToString());
             this.filePaths.Add(filePath);
             return filePath;
         }

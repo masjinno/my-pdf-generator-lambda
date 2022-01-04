@@ -31,12 +31,12 @@ namespace MyPdfGeneratorLambda.Model
 
             string tempPdfFilePath = tempFileManager.GenerateFilePath("pdf");
             this.SetPdfSettings(inputData.PageSetting, inputData.HeaderSetting, inputData.ContentSetting);
-            pdfLogic.ConvertCsvToPdf(inputData.HeaderSetting.TargetItems, loader.GetContentTable(), tempPdfFilePath);
+            List<List<string>> targetContentTable = this.FilterTable(loader, inputData.HeaderSetting.TargetItems);
+            pdfLogic.ConvertCsvToPdf(inputData.HeaderSetting.TargetItems, targetContentTable, tempPdfFilePath);
 
             GeneratedPdf genPdf = new GeneratedPdf();
             byte[] pdfData = this.LoadBinaryFile(tempPdfFilePath);
             genPdf.PdfFileData = Convert.ToBase64String(pdfData, Base64FormattingOptions.None);
-            genPdf.Guid = System.Guid.NewGuid().ToString();
 
             tempFileManager.DeleteFile(csvFilePath);
             tempFileManager.DeleteFile(tempPdfFilePath);
@@ -44,6 +44,10 @@ namespace MyPdfGeneratorLambda.Model
             return genPdf;
         }
 
+        /// <summary>
+        /// 入力値のヴァリデーション
+        /// </summary>
+        /// <param name="input"></param>
         private void ValidatePdfGenerationInput(PdfGenerationInput input)
         {
             if (input == null) throw new ArgumentNullException(nameof(input));
@@ -52,6 +56,7 @@ namespace MyPdfGeneratorLambda.Model
             if (input.HeaderSetting == null) throw new ArgumentNullException(nameof(input.HeaderSetting));
             if (input.ContentSetting == null) throw new ArgumentNullException(nameof(input.ContentSetting));
             if (input.HeaderSetting.FontFamily == null) throw new ArgumentNullException(nameof(input.HeaderSetting.FontFamily));
+            if (input.ContentSetting.FontFamily == null) throw new ArgumentNullException(nameof(input.ContentSetting.FontFamily));
 
             if (input.CsvData == string.Empty) throw new ArgumentException("Empty parameter", nameof(input.CsvData));
             if (input.PageSetting.Size == string.Empty) throw new ArgumentException("Empty parameter", nameof(input.PageSetting.Size));
@@ -60,6 +65,35 @@ namespace MyPdfGeneratorLambda.Model
             if (input.ContentSetting.FontFamily == string.Empty) throw new ArgumentException("Empty parameter", nameof(input.ContentSetting.FontFamily));
         }
 
+        /// <summary>
+        /// テーブルの内容を、出力内容に沿うようフィルタリングする
+        /// </summary>
+        /// <param name="csvLoader">CSVローダー</param>
+        /// <param name="targetItems">出力対象の項目一覧</param>
+        /// <returns></returns>
+        private List<List<string>> FilterTable(CsvLoader csvLoader, List<string> targetItems)
+        {
+            List<List<string>> retTable = new List<List<string>>();
+            List<string> header = csvLoader.GetHeaderItems();
+            csvLoader.GetContentTable().ForEach(srcRow =>
+            {
+                List<string> dstRow = new List<string>();
+                targetItems.ForEach(item =>
+                {
+                    int itemIndex = header.IndexOf(item);
+                    if (itemIndex < 0) throw new ArgumentOutOfRangeException(nameof(targetItems), nameof(targetItems) + " has invalid value.");
+                    dstRow.Add(srcRow[itemIndex]);
+                });
+                retTable.Add(dstRow);
+            });
+            return retTable;
+        }
+
+        /// <summary>
+        /// バイナリファイルをbyte[]形式として読み込む
+        /// </summary>
+        /// <param name="filePath">ファイルパス</param>
+        /// <returns>ファイルの内容</returns>
         private byte[] LoadBinaryFile(string filePath)
         {
             if (!File.Exists(filePath)) throw new FileNotFoundException("Temporary pdf file not found.", filePath);
@@ -73,6 +107,12 @@ namespace MyPdfGeneratorLambda.Model
             }
         }
 
+        /// <summary>
+        /// PDF設定を登録する
+        /// </summary>
+        /// <param name="pageSetting">ページ設定</param>
+        /// <param name="headerSetting">ヘッダ設定</param>
+        /// <param name="contentSetting">内容の設定</param>
         private void SetPdfSettings(PageSetting pageSetting, CsvHeaderSetting headerSetting, CsvContentSetting contentSetting)
         {
             this.pdfLogic.SetDstPageSize(PageSize.GetRectangle(pageSetting.Size));
