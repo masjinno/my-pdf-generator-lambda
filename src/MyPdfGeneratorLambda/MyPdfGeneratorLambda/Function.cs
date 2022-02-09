@@ -42,5 +42,23 @@ namespace MyPdfGeneratorLambda
         {
             return Properties.Init();
         }
+
+        /// <summary>
+        /// CSV‚Ìƒwƒbƒ_‚Ì€–Úˆê——‚ğæ“¾‚·‚é
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public List<string> GetCsvHeaderItems(TextData input, ILambdaContext context)
+        {
+            context.Logger.LogLine($"Arg : [{input}]");
+            TemporaryFileManager tempFileManager = TemporaryFileManager.GetInstance();
+            string csvFilePath = tempFileManager.CreateFile(input.Data, "csv");
+            CsvLoader loader = new CsvLoader();
+            loader.LoadCsv(csvFilePath);
+            List<string> headerItems = loader.GetHeaderItems();
+            tempFileManager.DeleteFile(csvFilePath);
+            return headerItems;
+        }
     }
 }

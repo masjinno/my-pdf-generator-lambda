@@ -74,6 +74,24 @@ namespace MyPdfGeneratorLambda.Tests
             Assert.Equal(expectedOrientations, props.Orientations);
         }
 
+        [Fact]
+        public void TestGetCsvHeaderItems()
+        {
+            // Invoke the lambda function and confirm the string was upper cased.
+            var function = new Function();
+            var context = new TestLambdaContext();
+            TextData input = new TextData();
+            input.Data = "header1,\"header2\",\"header3L1\nheader3L2\"\ncontent1-1,content1-2,content1-3\ncontent2-1,content2-2,content2-3";
+            var props = function.GetCsvHeaderItems(input, context);
+
+            var expectedHeaderItems = new List<string>()
+            {
+                "header1", "header2", "header3L1\nheader3L2"
+            };
+
+            Assert.Equal(expectedHeaderItems, props);
+        }
+
         //[Fact]
         public void CreatePdfFromBase64()
         {
